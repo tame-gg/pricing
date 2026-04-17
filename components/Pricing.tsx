@@ -59,7 +59,6 @@ type Addon = { label: string; price: string; required?: boolean };
 const ADDONS: Addon[] = [
   { label: "NFC Cards · 5-pack", price: "$25" },
   { label: "NFC Cards · 25-pack", price: "$80" },
-  { label: "Logo Design", price: "$75" },
   { label: "Domain Setup", price: "$25", required: true },
   { label: "Booking Integration", price: "$75–$150" },
   { label: "Extra Revision Round", price: "$50" },

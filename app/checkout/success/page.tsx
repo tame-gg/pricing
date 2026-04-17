@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Stripe from "stripe";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -6,12 +7,35 @@ export const metadata: Metadata = {
   description: "Your deposit is in. I'll reach out within 24 hours.",
 };
 
-export default function CheckoutSuccess({
+export const dynamic = "force-dynamic";
+
+async function resolvePaymentRef(
+  sessionId: string | undefined,
+): Promise<{ paymentId: string | null; amountPaid: number | null }> {
+  if (!sessionId) return { paymentId: null, amountPaid: null };
+  const secret = process.env.STRIPE_SECRET_KEY;
+  if (!secret) return { paymentId: null, amountPaid: null };
+  try {
+    const stripe = new Stripe(secret);
+    const session = await stripe.checkout.sessions.retrieve(sessionId, {
+      expand: ["payment_intent"],
+    });
+    const pi = session.payment_intent;
+    const paymentId =
+      typeof pi === "string" ? pi : (pi?.id ?? null);
+    return { paymentId, amountPaid: session.amount_total ?? null };
+  } catch {
+    return { paymentId: null, amountPaid: null };
+  }
+}
+
+export default async function CheckoutSuccess({
   searchParams,
 }: {
   searchParams: { session_id?: string };
 }) {
   const sessionId = searchParams.session_id;
+  const { paymentId, amountPaid } = await resolvePaymentRef(sessionId);
 
   return (
     <main className="min-h-screen flex items-center justify-center px-6 py-20">
@@ -40,10 +64,32 @@ export default function CheckoutSuccess({
           receipt.
         </p>
 
-        {sessionId && (
-          <p className="text-muted text-[10px] tracking-widest uppercase mb-8">
-            Ref · {sessionId.slice(-12)}
-          </p>
+        {(paymentId || amountPaid) && (
+          <div className="mb-8 inline-flex flex-col gap-1 glass-soft rounded-xl px-5 py-4 text-left mx-auto">
+            {amountPaid !== null && (
+              <div className="flex items-baseline justify-between gap-6">
+                <span className="text-muted text-[10px] tracking-[0.3em] uppercase">
+                  Paid
+                </span>
+                <span className="text-ink text-sm">
+                  ${(amountPaid / 100).toLocaleString("en-US", {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
+                  })}
+                </span>
+              </div>
+            )}
+            {paymentId && (
+              <div className="flex items-baseline justify-between gap-6">
+                <span className="text-muted text-[10px] tracking-[0.3em] uppercase">
+                  Payment ID
+                </span>
+                <span className="text-ink text-xs font-mono tracking-tight select-all">
+                  {paymentId}
+                </span>
+              </div>
+            )}
+          </div>
         )}
 
         <Link

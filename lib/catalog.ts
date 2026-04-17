@@ -8,7 +8,6 @@ export type MaintenanceKey = "basic" | "standard" | "premium";
 export type AddonKey =
   | "nfc5"
   | "nfc25"
-  | "logo"
   | "domain"
   | "booking"
   | "revision";
@@ -81,11 +80,6 @@ export const ADDONS: Record<
     name: "NFC Cards · 25-pack",
     price: 8000,
     description: "Programmable smart cards (25)",
-  },
-  logo: {
-    name: "Logo Design",
-    price: 7500,
-    description: "Custom logo · 2 rounds of revisions",
   },
   booking: {
     name: "Booking Integration",
