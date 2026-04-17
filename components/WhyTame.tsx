@@ -42,7 +42,7 @@ export default function WhyTame() {
     <section className="relative py-28 md:py-36 px-6 md:px-12 max-w-7xl mx-auto">
       <SectionHeader
         eyebrow="Why work with me"
-        title="Boutique. Not a sweatshop."
+        title="Individual Person, Not a Corporation."
         subtitle="One person, end-to-end. The same hands that quote your project also build it."
       />
 
