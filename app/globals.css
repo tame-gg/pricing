@@ -24,14 +24,6 @@ body {
   overflow-x: hidden;
 }
 
-/* Hide native cursor on pointer devices when custom cursor is active */
-@media (pointer: fine) {
-  body.has-cursor,
-  body.has-cursor * {
-    cursor: none !important;
-  }
-}
-
 /* Selection */
 ::selection {
   background: rgba(201, 168, 76, 0.35);
@@ -176,33 +168,6 @@ body {
     rgba(201, 168, 76, 0.35),
     transparent
   );
-}
-
-/* Custom cursor */
-.cursor-dot {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  background: var(--gold);
-  pointer-events: none;
-  z-index: 200;
-  mix-blend-mode: screen;
-  will-change: transform;
-}
-.cursor-ring {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  border: 1px solid rgba(201, 168, 76, 0.45);
-  pointer-events: none;
-  z-index: 200;
-  will-change: transform;
 }
 
 /* Underline draw for inputs */

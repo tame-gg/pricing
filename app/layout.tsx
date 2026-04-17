@@ -2,7 +2,6 @@ import type { Metadata, Viewport } from "next";
 import { Fraunces, Inter_Tight } from "next/font/google";
 import "./globals.css";
 import GrainOverlay from "@/components/GrainOverlay";
-import CustomCursor from "@/components/CustomCursor";
 import Curtain from "@/components/Curtain";
 
 const serif = Fraunces({
@@ -57,7 +56,6 @@ export default function RootLayout({
     <html lang="en" className={`${serif.variable} ${sans.variable}`}>
       <body className="font-sans bg-bg text-ink">
         <Curtain />
-        <CustomCursor />
         <GrainOverlay />
         {children}
       </body>
