@@ -44,7 +44,7 @@ export default function Contact() {
   return (
     <section
       id="contact"
-      className="relative py-28 md:py-40 px-6 md:px-12 max-w-5xl mx-auto"
+      className="relative py-28 md:py-40 px-6 md:px-12 max-w-3xl mx-auto"
     >
       <SectionHeader
         eyebrow="Get in touch"
