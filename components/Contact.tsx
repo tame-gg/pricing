@@ -7,14 +7,38 @@ import { SectionHeader } from "./Demos";
 export default function Contact() {
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleSubmit = (e: FormEvent) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setSubmitting(true);
-    setTimeout(() => {
-      setSubmitting(false);
+    setError(null);
+    try {
+      const fd = new FormData(e.currentTarget);
+      const payload = {
+        name: String(fd.get("name") ?? ""),
+        business: String(fd.get("business") ?? ""),
+        contact: String(fd.get("contact") ?? ""),
+        type: String(fd.get("type") ?? ""),
+        budget: String(fd.get("budget") ?? ""),
+        description: String(fd.get("description") ?? ""),
+        company_url: String(fd.get("company_url") ?? ""),
+      };
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      const data = (await res.json()) as { ok?: boolean; error?: string };
+      if (!res.ok || !data.ok) {
+        throw new Error(data.error ?? "Could not send message.");
+      }
       setSubmitted(true);
-    }, 700);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Send failed.");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -82,11 +106,40 @@ export default function Contact() {
                 className="md:col-span-2"
               />
 
+              {/* Honeypot — hidden from real users, bots fill it */}
+              <div
+                aria-hidden
+                style={{
+                  position: "absolute",
+                  left: "-9999px",
+                  width: 1,
+                  height: 1,
+                  overflow: "hidden",
+                }}
+              >
+                <label>
+                  Company URL
+                  <input
+                    type="text"
+                    name="company_url"
+                    tabIndex={-1}
+                    autoComplete="off"
+                  />
+                </label>
+              </div>
+
               <div className="md:col-span-2 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6 mt-2">
-                <p className="text-muted text-xs tracking-wide max-w-sm">
-                  By submitting, you'll get a reply from Andrew within 24
-                  hours. No spam, no auto-responders.
-                </p>
+                <div className="space-y-2 max-w-sm">
+                  <p className="text-muted text-xs tracking-wide">
+                    By submitting, you'll get a reply from Andrew within 24
+                    hours. No spam, no auto-responders.
+                  </p>
+                  {error && (
+                    <p className="text-red-400/90 text-xs leading-snug">
+                      {error}
+                    </p>
+                  )}
+                </div>
                 <SubmitButton submitting={submitting} />
               </div>
             </motion.form>
