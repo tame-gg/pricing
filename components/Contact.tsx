@@ -73,7 +73,7 @@ export default function Contact() {
               <Field label="Name" name="name" required />
               <Field label="Business Name" name="business" />
               <Field
-                label="Phone or Email"
+                label="Email"
                 name="contact"
                 required
                 className="md:col-span-2"
