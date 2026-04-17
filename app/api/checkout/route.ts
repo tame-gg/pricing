@@ -114,7 +114,9 @@ export async function POST(req: NextRequest) {
       line_items: lineItems,
       allow_promotion_codes: true,
       billing_address_collection: "auto",
+      customer_creation: "always",
       customer_email: email || undefined,
+      phone_number_collection: { enabled: true },
       success_url: `${origin}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${origin}/#checkout`,
       metadata: {
