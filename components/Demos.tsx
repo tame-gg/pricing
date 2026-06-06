@@ -1,200 +1,260 @@
 "use client";
 
-import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
-import { useRef, MouseEvent } from "react";
+import { motion } from "framer-motion";
+import { useMemo, useState } from "react";
+import { DEMO_SITES, type DemoSite } from "@/lib/demo-sites";
 
-type Demo = {
-  name: string;
-  industry: string;
-  href: string;
-  gradient: string;
-  accent: string;
+type ViewportMode = {
+  id: "desktop" | "tablet" | "mobile";
+  label: string;
+  frameClass: string;
 };
 
-const DEMOS: Demo[] = [
+const VIEWPORTS: ViewportMode[] = [
   {
-    name: "Cutz by JoJo",
-    industry: "Barber | Demo",
-    href: "https://cutzbyjojo.tame.gg",
-    gradient:
-      "linear-gradient(135deg, #1a1a1a 0%, #2a1d10 45%, #4a3415 70%, #6e4a1a 100%)",
-    accent: "#C9A84C",
+    id: "desktop",
+    label: "Desktop",
+    frameClass: "w-full",
   },
   {
-    name: "Saffron | Demo",
-    industry: "Restaurant",
-    href: "https://saffron.tame.gg",
-    gradient:
-      "linear-gradient(135deg, #0e0e10 0%, #281007 50%, #5a1f0a 100%)",
-    accent: "#E8A24A",
+    id: "tablet",
+    label: "Tablet",
+    frameClass: "w-full max-w-[820px]",
   },
   {
-    name: "Nails | Demo",
-    industry: "Nail Salon",
-    href: "https://nails.tame.gg",
-    gradient:
-      "linear-gradient(135deg, #140a10 0%, #361828 45%, #6b2a4a 100%)",
-    accent: "#F5A6C9",
-  },
-  {
-    name: "Food Truck | Demo",
-    industry: "Street Food",
-    href: "https://foodtruck.tame.gg",
-    gradient:
-      "linear-gradient(135deg, #100a07 0%, #3a1c0a 45%, #7a3416 100%)",
-    accent: "#FFB347",
-  },
-  {
-    name: "tame.gg | Production",
-    industry: "Studio",
-    href: "https://tame.gg",
-    gradient:
-      "linear-gradient(135deg, #070707 0%, #181308 45%, #352611 100%)",
-    accent: "#E8C36D",
-  },
-  {
-    name: "Keila's Portfolio | Production",
-    industry: "Personal · Creator",
-    href: "https://keila.lol",
-    gradient:
-      "linear-gradient(135deg, #0c0815 0%, #201340 45%, #3f2473 100%)",
-    accent: "#C9A4F5",
+    id: "mobile",
+    label: "Mobile",
+    frameClass: "w-full max-w-[390px]",
   },
 ];
 
 export default function Demos() {
+  const [activeSlug, setActiveSlug] = useState(DEMO_SITES[0].slug);
+  const [viewportId, setViewportId] = useState<ViewportMode["id"]>("desktop");
+  const [loadedSlug, setLoadedSlug] = useState<string | null>(null);
+
+  const activeDemo = useMemo(
+    () => DEMO_SITES.find((demo) => demo.slug === activeSlug) ?? DEMO_SITES[0],
+    [activeSlug],
+  );
+  const viewport =
+    VIEWPORTS.find((mode) => mode.id === viewportId) ?? VIEWPORTS[0];
+
+  const selectDemo = (slug: string) => {
+    setLoadedSlug(null);
+    setActiveSlug(slug);
+  };
+
   return (
     <section
       id="demos"
       className="relative py-28 md:py-36 px-6 md:px-12 max-w-7xl mx-auto"
     >
       <SectionHeader
-        eyebrow="Recent Work"
-        title="Preview Websites."
-        subtitle="A look at live builds. Each one custom-coded, animation-driven, and tuned to its business."
+        eyebrow="Demo Archive"
+        title="One interactive home for the demo sites."
+        subtitle="The four preview builds now run from this project as bundled static exports, so the original repos can be removed without losing the live demo experience."
       />
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
-        {DEMOS.map((d, i) => (
-          <DemoCard key={d.name} demo={d} index={i} />
-        ))}
+      <div className="grid grid-cols-1 lg:grid-cols-[330px_minmax(0,1fr)] gap-6 lg:gap-8 items-start">
+        <motion.div
+          initial={{ opacity: 0, y: 24 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-80px" }}
+          transition={{ duration: 0.7, ease: [0.2, 0.8, 0.2, 1] }}
+          className="glass rounded-2xl p-4 md:p-5"
+        >
+          <div className="flex items-center justify-between gap-4 mb-4">
+            <div className="text-[10px] tracking-[0.32em] uppercase text-gold">
+              Bundled Builds
+            </div>
+            <div className="text-xs text-muted">{DEMO_SITES.length} demos</div>
+          </div>
+
+          <div className="space-y-3">
+            {DEMO_SITES.map((demo) => (
+              <DemoSelector
+                key={demo.slug}
+                demo={demo}
+                selected={demo.slug === activeDemo.slug}
+                onSelect={() => selectDemo(demo.slug)}
+              />
+            ))}
+          </div>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 28 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-80px" }}
+          transition={{ duration: 0.8, delay: 0.1, ease: [0.2, 0.8, 0.2, 1] }}
+          className="min-w-0"
+        >
+          <div className="glass rounded-2xl overflow-hidden">
+            <div className="flex flex-col xl:flex-row xl:items-center xl:justify-between gap-4 p-4 md:p-5 border-b border-white/10">
+              <div className="min-w-0">
+                <div className="flex flex-wrap items-center gap-3">
+                  <h3 className="editorial text-3xl md:text-4xl text-ink leading-tight">
+                    {activeDemo.name}
+                  </h3>
+                  <span
+                    className="text-[10px] tracking-[0.24em] uppercase px-3 py-1 rounded-full border"
+                    style={{
+                      color: activeDemo.accent,
+                      borderColor: `${activeDemo.accent}66`,
+                      backgroundColor: `${activeDemo.accent}12`,
+                    }}
+                  >
+                    {activeDemo.industry}
+                  </span>
+                </div>
+                <p className="mt-2 text-sm md:text-base text-muted leading-relaxed max-w-2xl">
+                  {activeDemo.summary}
+                </p>
+              </div>
+
+              <div className="flex flex-wrap items-center gap-3">
+                <SegmentedControl
+                  modes={VIEWPORTS}
+                  activeId={viewportId}
+                  onChange={setViewportId}
+                />
+                <a
+                  href={activeDemo.localPath}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center justify-center rounded-full border border-gold/50 px-4 py-2 text-[11px] tracking-[0.2em] uppercase text-ink hover:border-gold hover:text-goldlight transition-colors"
+                >
+                  Open Full
+                </a>
+              </div>
+            </div>
+
+            <div className="bg-[#050505] p-3 md:p-5">
+              <div className="browser-frame">
+                <div className="browser-bar">
+                  <span className="browser-dot" />
+                  <span className="browser-dot" />
+                  <span className="browser-dot" />
+                  <span className="ml-3 text-[10px] text-muted truncate">
+                    tame.gg{activeDemo.localPath}
+                  </span>
+                </div>
+
+                <div
+                  className="relative min-h-[620px] overflow-auto"
+                  style={{ background: activeDemo.gradient }}
+                >
+                  <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(circle_at_30%_18%,rgba(255,255,255,0.12),transparent_34%),linear-gradient(180deg,rgba(5,5,5,0)_0%,rgba(5,5,5,0.24)_100%)]" />
+
+                  {loadedSlug !== activeDemo.slug && (
+                    <div className="absolute inset-0 z-10 grid place-items-center bg-black/45 backdrop-blur-sm">
+                      <div className="text-center">
+                        <div
+                          className="mx-auto mb-4 h-10 w-10 rounded-full border border-white/20 border-t-transparent animate-spin"
+                          aria-hidden
+                        />
+                        <div className="text-xs tracking-[0.26em] uppercase text-ink/80">
+                          Loading {activeDemo.name}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="relative z-[1] flex justify-center min-w-full p-3 md:p-5">
+                    <div
+                      className={`${viewport.frameClass} transition-[max-width] duration-500 ease-out`}
+                    >
+                      <iframe
+                        key={activeDemo.slug}
+                        title={`${activeDemo.name} demo preview`}
+                        src={activeDemo.localPath}
+                        onLoad={() => setLoadedSlug(activeDemo.slug)}
+                        className="block h-[620px] w-full bg-white shadow-2xl"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </motion.div>
       </div>
     </section>
   );
 }
 
-function DemoCard({ demo, index }: { demo: Demo; index: number }) {
-  const ref = useRef<HTMLAnchorElement>(null);
-  const rx = useMotionValue(0);
-  const ry = useMotionValue(0);
-  const srx = useSpring(rx, { stiffness: 200, damping: 18 });
-  const sry = useSpring(ry, { stiffness: 200, damping: 18 });
-
-  const rotateX = useTransform(srx, (v) => `${v}deg`);
-  const rotateY = useTransform(sry, (v) => `${v}deg`);
-
-  const onMove = (e: MouseEvent) => {
-    const r = ref.current?.getBoundingClientRect();
-    if (!r) return;
-    const px = (e.clientX - r.left) / r.width - 0.5;
-    const py = (e.clientY - r.top) / r.height - 0.5;
-    rx.set(-py * 8);
-    ry.set(px * 10);
-  };
-
-  const onLeave = () => {
-    rx.set(0);
-    ry.set(0);
-  };
-
+function DemoSelector({
+  demo,
+  selected,
+  onSelect,
+}: {
+  demo: DemoSite;
+  selected: boolean;
+  onSelect: () => void;
+}) {
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 40 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-80px" }}
-      transition={{
-        duration: 0.9,
-        delay: index * 0.12,
-        ease: [0.2, 0.8, 0.2, 1],
-      }}
-      style={{ perspective: 1200 }}
+    <button
+      type="button"
+      onClick={onSelect}
+      aria-pressed={selected}
+      className={`group w-full rounded-xl border p-4 text-left transition-all duration-300 ${
+        selected
+          ? "border-gold/70 bg-white/[0.07]"
+          : "border-white/10 bg-white/[0.025] hover:border-gold/45 hover:bg-white/[0.045]"
+      }`}
     >
-      <motion.a
-        ref={ref}
-        href={demo.href}
-        target={demo.href.startsWith("http") ? "_blank" : undefined}
-        rel="noreferrer"
-        onMouseMove={onMove}
-        onMouseLeave={onLeave}
-        style={{ rotateX, rotateY, transformStyle: "preserve-3d" }}
-        className="group block glass rounded-2xl p-5 hover:border-gold/60 transition-colors duration-500"
-      >
-        <div
-          className="browser-frame"
-          style={{ transform: "translateZ(20px)" }}
-        >
-          <div className="browser-bar">
-            <span className="browser-dot" />
-            <span className="browser-dot" />
-            <span className="browser-dot" />
-            <span className="ml-3 text-[10px] text-muted truncate">
-              {demo.href.replace(/^https?:\/\//, "")}
-            </span>
-          </div>
-          <div
-            className="aspect-[4/3] relative overflow-hidden"
-            style={{ background: demo.gradient }}
-          >
-            <motion.div
-              className="absolute inset-0"
-              style={{
-                background: `radial-gradient(circle at 30% 30%, ${demo.accent}33, transparent 55%)`,
-              }}
-              animate={{ opacity: [0.55, 0.95, 0.55] }}
-              transition={{ duration: 5, repeat: Infinity }}
-            />
-            <div className="absolute inset-0 flex flex-col justify-end p-6">
-              <div
-                className="editorial text-3xl md:text-4xl text-ink/90 leading-tight"
-                style={{ color: demo.accent }}
-              >
-                {demo.name}
-              </div>
-              <div className="text-[10px] tracking-[0.3em] uppercase text-ink/60 mt-2">
-                {demo.industry}
-              </div>
-            </div>
-            {/* sweep highlight on hover */}
-            <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none">
-              <div className="absolute inset-y-0 -left-1/3 w-1/3 bg-gradient-to-r from-transparent via-white/10 to-transparent skew-x-[-20deg] animate-[sweep_2s_ease-in-out_infinite]" />
-            </div>
-          </div>
-        </div>
-
-        <div className="flex items-center justify-between mt-5">
-          <div>
-            <div className="text-ink text-base">{demo.name}</div>
-            <div className="text-muted text-xs tracking-widest uppercase mt-1">
-              {demo.industry}
-            </div>
-          </div>
-          <span className="text-gold text-sm tracking-widest uppercase opacity-80 group-hover:opacity-100 group-hover:translate-x-1 transition-all duration-300">
-            View Live →
+      <div className="flex items-start gap-3">
+        <span
+          className="mt-1 h-9 w-9 shrink-0 rounded-full border"
+          style={{
+            background: demo.gradient,
+            borderColor: selected ? demo.accent : "rgba(255,255,255,0.14)",
+            boxShadow: selected ? `0 0 28px -10px ${demo.accent}` : undefined,
+          }}
+          aria-hidden
+        />
+        <span className="min-w-0">
+          <span className="block text-base text-ink">{demo.name}</span>
+          <span className="mt-1 block text-[10px] tracking-[0.24em] uppercase text-muted">
+            {demo.industry}
           </span>
-        </div>
-      </motion.a>
+          <span className="mt-3 block text-xs leading-relaxed text-muted">
+            {demo.sourceRepo}
+          </span>
+        </span>
+      </div>
+    </button>
+  );
+}
 
-      <style jsx>{`
-        @keyframes sweep {
-          0% {
-            transform: translateX(0) skewX(-20deg);
-          }
-          100% {
-            transform: translateX(500%) skewX(-20deg);
-          }
-        }
-      `}</style>
-    </motion.div>
+function SegmentedControl({
+  modes,
+  activeId,
+  onChange,
+}: {
+  modes: ViewportMode[];
+  activeId: ViewportMode["id"];
+  onChange: (id: ViewportMode["id"]) => void;
+}) {
+  return (
+    <div className="inline-flex rounded-full border border-white/10 bg-black/25 p-1">
+      {modes.map((mode) => (
+        <button
+          key={mode.id}
+          type="button"
+          onClick={() => onChange(mode.id)}
+          className={`rounded-full px-3 py-1.5 text-[10px] tracking-[0.18em] uppercase transition-colors ${
+            activeId === mode.id
+              ? "bg-gold text-black"
+              : "text-muted hover:text-ink"
+          }`}
+          aria-pressed={activeId === mode.id}
+        >
+          {mode.label}
+        </button>
+      ))}
+    </div>
   );
 }
 
@@ -211,8 +271,9 @@ export function SectionHeader({
 }) {
   return (
     <div
-      className={`mb-14 md:mb-20 ${align === "center" ? "text-center mx-auto max-w-2xl" : "max-w-3xl"
-        }`}
+      className={`mb-14 md:mb-20 ${
+        align === "center" ? "text-center mx-auto max-w-2xl" : "max-w-3xl"
+      }`}
     >
       <motion.p
         initial={{ opacity: 0, y: 10 }}
@@ -221,12 +282,7 @@ export function SectionHeader({
         transition={{ duration: 0.6 }}
         className="text-gold text-xs tracking-[0.35em] uppercase mb-5 flex items-center gap-3"
       >
-        {align === "center" && (
-          <span className="inline-block w-8 h-px bg-gold/50" />
-        )}
-        {align === "left" && (
-          <span className="inline-block w-8 h-px bg-gold/50" />
-        )}
+        <span className="inline-block w-8 h-px bg-gold/50" />
         {eyebrow}
         {align === "center" && (
           <span className="inline-block w-8 h-px bg-gold/50" />
@@ -246,8 +302,8 @@ export function SectionHeader({
           initial={{ opacity: 0, y: 14 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.9, delay: 0.15 }}
-          className="text-muted text-base md:text-lg mt-5 max-w-xl leading-relaxed"
+          transition={{ duration: 0.8, delay: 0.1 }}
+          className="mt-6 text-muted text-lg leading-relaxed"
         >
           {subtitle}
         </motion.p>
